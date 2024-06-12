@@ -1,30 +1,52 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneLight, ascetic } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import hightlightSyntax from "../utils/highlightSyntax";
 export default function Home() {
-  // const generateQuery = useQuery("generate", async () => {
-  //   const response = await fetch("http://127.0.0.1:8787/generate");
-  //   return response.json();
-  // });
-  // console.log(generateQuery.data?.response)
-  const [text, setText] = useState("");
+  const generateQuery = useQuery(["generate"], async () => {
+    const text = await fetch("http://127.0.0.1:8787/generate");
+    return text.json();
+  });
+  const [input, setInput] = useState("");
   const [error, setError] = useState<string | undefined>();
-  const response = "interface Book {\n  title: string;\n  author: string;\n  pages: number;\n}\n\nclass Library {\n  private books: Book[];\n\n  constructor() {\n    this.books = [];\n  }\n\n  addBook(title: string, author: string, pages: number) {\n    this.books.push({ title, author, pages });\n  }\n\n  getBooks() {\n    return this.books;\n  }\n}\n\nlet library = new Library();\nlibrary.addBook(\"Book 1\", \"Author 1\", 100);\nlibrary.addBook(\"Book 2\", \"Author 2\", 200);\nlibrary.addBook(\"Book 3\", \"Author 3\", 300);\n\nconsole.log(\"All Books:\");\nfor (let book of library.getBooks()) {\n  console.log(`Title: ${book.title}, Author: ${book.author}, Pages: ${book.pages}`);\n}"
+  const [text, setText] = useState<string>();
+  const [startTime, setStartTime] = useState<number>();
+  const [endTime, setEndTime] = useState<number>();
+  const [wordCount, setWordCount] = useState<number>();
 
+  const calculateWPM = () => {
+    if (startTime && endTime) {
+      const durationInMinutes = (endTime - startTime) / 1000 / 60;
+      const wordCount = text?.split(' ').length || 0;
+      setWordCount(Math.round(wordCount / durationInMinutes))
+    }
+    return 0;
+  };
+
+  useEffect(() => {
+    calculateWPM();
+  }, [startTime, endTime])
+
+  useEffect(() => {
+    if (generateQuery.data && !text) {
+      let data = generateQuery.data?.response.replace(/^```|```$/g, "");
+      if (data[0] === ('\n' || " ")) data = data.slice(1)
+      if (data[data.length - 1] === ('\n' || " ")) data = data.slice(0, -1)
+      setText(data)
+    }
+  }, [generateQuery.data])
 
   // get cursor position  
   const cursor = () => {
-    let spaces = text.replace(/[^\n]/g, ' ');
+    let spaces = input.replace(/[^\n]/g, ' ');
     spaces += "_"
     return spaces;
   }
 
   // get errors
   const showError = () => {
-    let spaces = text.replace(/[^\n]/g, ' ');
+    let spaces = input.replace(/[^\n]/g, ' ');
     spaces += error
     return spaces;
   }
@@ -33,34 +55,45 @@ export default function Home() {
 
 
   const handleInputChange = (e: any) => {
+    if (!startTime) setStartTime(Date.now())
+
     const value = e.target.value || "";
-    if (value.length < text.length) return;
-    if (value === response.slice(0, value.length)) {
+    if (value.length < input.length) return;
+    if (text && value === text.slice(0, value.length)) {
       if (error) setError(undefined)
-      return setText(value);
+      return setInput(value);
     }
-    setError(response[value.length - 1])
+    if (input === text && !endTime) {
+      setEndTime(Date.now())
+    }
+    text && setError(text[value.length - 1])
   }
 
   return (
-    <div className="relative font-bold p-4 ">
-      {/* Input Layer */}
-      <textarea value={text} className="z-[9999] absolute opacity-0 text-transparent outline-none bg-transparent w-full h-full" onChange={handleInputChange} />
-      <SyntaxHighlighter customStyle={{ ...styles, zIndex: "20" } as any} language="typescript" style={atomOneLight}>
-        {text}
-      </SyntaxHighlighter>
-      {/* Cursor Layer */}
-      <SyntaxHighlighter customStyle={{ ...styles, color: "black", fontWeight: "bold", zIndex: "30", width: "100%" } as any} language="typescript" style={atomOneLight}>
-        {cursor()}
-      </SyntaxHighlighter>
-      {/* Error  Layer */}
-      {error && <SyntaxHighlighter customStyle={{ ...styles, color: "red", zIndex: "20", width: "100%" } as any} language="typescript" style={atomOneLight}>
-        {showError()}
-      </SyntaxHighlighter>}
-      {/* Reference Layer */}
-      <SyntaxHighlighter customStyle={{ backgroundColor: "transparent", color: "gray" }} language="typescript" style={ascetic}>
-        {response}
-      </SyntaxHighlighter>
+    <div className="flex gap-6 flex-col items-center justify-center min-h-screen">
+      {wordCount && <div className="flex flex-col w-full p-4 md:w-2/4">
+        <p className="text-sm text-gray-400">WPM</p>
+        <b className="text-gray-700 text-4xl">{wordCount}</b>
+      </div>}
+      <div className="relative font-bold p-4 w-full h-full md:w-2/4">
+        {/* Input Layer */}
+        <textarea value={input} className="z-[9999] absolute opacity-0 input-transparent outline-none bg-transparent w-full h-full" onChange={handleInputChange} />
+        <SyntaxHighlighter customStyle={{ ...styles, zIndex: "30" } as any} language="typescript" style={atomOneLight}>
+          {input}
+        </SyntaxHighlighter>
+        {/* Cursor Layer */}
+        <SyntaxHighlighter customStyle={{ ...styles, color: "black", fontWeight: "bold", zIndex: "30", width: "100%" } as any} language="typescript" style={atomOneLight}>
+          {cursor()}
+        </SyntaxHighlighter>
+        {/* Error  Layer */}
+        {error && <SyntaxHighlighter customStyle={{ ...styles, color: "red", zIndex: "20", width: "100%" } as any} language="typescript" style={atomOneLight}>
+          {showError()}
+        </SyntaxHighlighter>}
+        {/* Reference Layer */}
+        <SyntaxHighlighter customStyle={{ backgroundColor: "transparent", color: "gray" }} language="typescript" style={ascetic}>
+          {text || ""}
+        </SyntaxHighlighter>
+      </div>
     </div>
   );
 }
