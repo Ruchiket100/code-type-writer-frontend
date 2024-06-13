@@ -6,7 +6,7 @@ import { atomOneLight, ascetic, srcery } from 'react-syntax-highlighter/dist/esm
 import { FaReact } from "react-icons/fa";
 export default function Home() {
   const generateQuery = useQuery(["generate"], async () => {
-    const text = await fetch("http://127.0.0.1:8787/generate");
+    const text = await fetch(" https://calm-disk-0cc0.ruchiket100.workers.dev/generate");
     return text.json();
   });
   const [input, setInput] = useState("");
