@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Source_Code_Pro } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import ReactQueryProvider from "@/Provider";
 
-const sourceCodePro = Source_Code_Pro({ subsets: ["latin"] });
+const monserrat = Montserrat({ subsets: ["latin"] });
 
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={sourceCodePro.className}>
+      <body className={monserrat.className}>
         <ReactQueryProvider>{children}</ReactQueryProvider></body>
     </html>
   );
