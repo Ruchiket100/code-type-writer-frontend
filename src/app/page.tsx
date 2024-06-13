@@ -57,17 +57,19 @@ export default function Home() {
 
   const styles = { backgroundColor: "transparent", position: "absolute" }
 
-  const isInputRefFocused = () => {
-    if (document)
-      return document.activeElement === inputRef.current || false;
-    return false
-  }
+
+
+
 
   useEffect(() => {
+    const isInputRefFocused = () => {
+      if (document)
+        return document.activeElement === inputRef.current || false;
+      return false
+    }
     setIsInputFocused(isInputRefFocused())
   }, [inputRef.current])
 
-  console.log(isInputRefFocused())
 
   const handleInputChange = (e: any) => {
     if (!startTime) setStartTime(Date.now())
