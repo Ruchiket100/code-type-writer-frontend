@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneLight, ascetic, srcery } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { FaReact } from "react-icons/fa";
+
 export default function Home() {
   const generateQuery = useQuery(["generate"], async () => {
     const text = await fetch(" https://calm-disk-0cc0.ruchiket100.workers.dev/generate");
@@ -57,7 +58,9 @@ export default function Home() {
   const styles = { backgroundColor: "transparent", position: "absolute" }
 
   const isInputRefFocused = () => {
-    return document.activeElement === inputRef.current || false;
+    if (document)
+      return document.activeElement === inputRef.current || false;
+    return false
   }
 
   useEffect(() => {
