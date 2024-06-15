@@ -2,10 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import SyntaxHighlighter from "react-syntax-highlighter"
-import {
-  ascetic,
-  srcery,
-} from "react-syntax-highlighter/dist/esm/styles/hljs"
+import { ascetic, srcery } from "react-syntax-highlighter/dist/esm/styles/hljs"
 import { FaReact } from "react-icons/fa"
 
 export default function Home() {
@@ -37,7 +34,6 @@ export default function Home() {
     calculateWPM()
   }, [startTime, endTime])
 
-
   // set Text when data is get
   useEffect(() => {
     if (generateQuery.data && !text) {
@@ -54,7 +50,6 @@ export default function Home() {
     spaces += "_"
     return spaces
   }
-
 
   // get errors
   const showError = () => {
@@ -94,10 +89,10 @@ export default function Home() {
         <h1 className='text-4xl font-bold text-purple-200 w-full capitalize'>
           Practice Coding with Typing Speed
         </h1>
-        {wordCount || true &&  (
+        {wordCount && (
           <div className='fixed top-10 left-10 md:top-80 md:left-80 flex flex-col w-full p-4 md:w-2/4'>
             <p className='text-md text-gray-300'>WPM</p>
-            <b className='text-purple-400 text-5xl'>40{wordCount}</b>
+            <b className='text-purple-400 text-5xl'>{wordCount}</b>
           </div>
         )}
 
@@ -181,8 +176,10 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div className="fixed py-2 bottom-0 text-purple-600 text-xs  text-center bg-black">
-        <a href="https://github.com/Ruchiket100/code-type-writer-frontend">https://github.com/Ruchiket100/code-type-writer-frontend</a>
+      <div className='fixed py-2 bottom-0 text-purple-600 text-xs  text-center bg-black'>
+        <a href='https://github.com/Ruchiket100/code-type-writer-frontend'>
+          https://github.com/Ruchiket100/code-type-writer-frontend
+        </a>
       </div>
     </div>
   )
